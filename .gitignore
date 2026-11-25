@@ -1,0 +1,12 @@
+.gradle/
+build/
+run/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Local dependency mirror (copy from gem-mod when the Fabric maven is blocked)
+local-mirror/

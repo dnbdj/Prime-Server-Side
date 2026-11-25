@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "prime",
+	"version": "${version}",
+	"name": "Prime (server side)",
+	"description": "The server half of Prime: it reports server status and tracks session traffic on a dedicated server. Pairs with the Prime launcher (dnbdj/Prime-Client-Side).",
+	"authors": [
+		"dnbdj"
+	],
+	"contact": {
+		"sources": "https://github.com/dnbdj/Prime-Server-Side"
+	},
+	"license": "MIT",
+	"environment": "server",
+	"entrypoints": {
+		"main": [
+			"dev.dnbdj.prime.PrimeMod"
+		],
+		"server": [
+			"dev.dnbdj.prime.server.PrimeServer"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,97 @@
+buildscript {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+	}
+	dependencies {
+		// The remap variant of Loom - which 1.21.11 needs, since that version still
+		// ships obfuscated - is registered as a second plugin id inside the loom
+		// jar itself, so it is applied from the buildscript classpath below rather
+		// than the plugins block. Its plugins-block marker was only ever published
+		// as a 1.18-SNAPSHOT that Fabric has since rotated off the maven, which
+		// made `id 'net.fabricmc.fabric-loom-remap'` unresolvable from a cold cache.
+		classpath "net.fabricmc:fabric-loom:${loom_version}"
+	}
+}
+
+apply plugin: 'net.fabricmc.fabric-loom-remap'
+apply plugin: 'maven-publish'
+
+repositories {
+	// Add repositories to retrieve artifacts from in here.
+	// You should only use this when depending on other mods because
+	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+
+	// Optional offline mirror: copy gem-mod's local-mirror/ directory here when
+	// maven.fabricmc.net is unreachable, and the intermediary mappings resolve
+	// from disk instead of the network.
+	if (file('local-mirror').isDirectory()) {
+		exclusiveContent {
+			forRepository {
+				maven { url = uri("local-mirror") }
+			}
+			filter {
+				includeModule "net.fabricmc", "intermediary"
+			}
+		}
+	}
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+	// Yarn mappings. The ":v2" suffix is required.
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API - commands, lifecycle events and the networking events.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a "build" task if it is present.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_${projectName}" }
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+		// Add repositories to publish to here.
+	}
+}
