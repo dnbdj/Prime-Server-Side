@@ -67,15 +67,16 @@ Same toolchain as [gem-mod](https://github.com/dnbdj/gem-mod): Loom 1.18.4,
 loader 0.19.5, Yarn 1.21.11+build.6, Fabric API 0.141.6+1.21.11, Java 21.
 
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-25.0.4.1-hotspot"
+$env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-25.0.4.101-hotspot"
 .\gradlew.bat build
 .\gradlew.bat runServer   # needs a eula.txt with eula=true in run/
 ```
 
-Output: `build/libs/prime-1.0.0.jar`.
+Output: `build/libs/prime-1.0.0.jar`. The wrapper is committed (Gradle 9.8.2),
+so no local Gradle install is needed; the first run downloads the distribution.
 
-This repo ships no Gradle wrapper binary - copy `gradlew`, `gradlew.bat` and
-`gradle/wrapper/` from gem-mod (or run `gradle wrapper`) once.
+Last verified build: `BUILD SUCCESSFUL` on Gradle 9.8.2 and JDK 25 (targeting Java
+21), producing `prime-1.0.0.jar`.
 
 ### If the network blocks the Fabric maven
 
@@ -103,3 +104,6 @@ mods/fabric-api-0.141.6+1.21.11.jar
   `ServerPlayNetworkHandler`, so call `getPlayer()` on it.
 - `HttpClient.sendAsync` keeps the Discord call off the server thread; only the
   outcome is logged, never the token.
+- 1.21.9+ replaced numeric permission levels: `/prime reload` gates on
+  `CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK)`
+  (the old level 2) instead of `hasPermissionLevel(2)`.

@@ -3,7 +3,7 @@
 	"id": "prime",
 	"version": "${version}",
 	"name": "Prime (server side)",
-	"description": "The server half of Prime: it reports server status and tracks session traffic on a dedicated server. Pairs with the Prime launcher (dnbdj/Prime-Client-Side).",
+	"description": "The server half of Prime: a verified tick next to a member's name and a Discord role. Nothing else. Pairs with the Prime launcher (dnbdj/Prime-Client-Side).",
 	"authors": [
 		"dnbdj"
 	],

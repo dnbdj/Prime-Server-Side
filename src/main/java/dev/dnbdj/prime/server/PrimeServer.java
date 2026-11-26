@@ -64,10 +64,11 @@ public class PrimeServer implements DedicatedServerModInitializer {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("prime")
-						.executes(PrimeServer::status)
+						.executes(context -> status(context.getSource()))
 						.then(CommandManager.literal("reload")
-								.requires(source -> source.hasPermissionLevel(2))
-								.executes(PrimeServer::reload))));
+								// 1.21.9+ replaced numeric permission levels with named checks.
+								.requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
+								.executes(context -> reload(context.getSource())))));
 	}
 
 	/** Puts the player on the tick team, creating the team the first time it is needed. */
@@ -94,7 +95,11 @@ public class PrimeServer implements DedicatedServerModInitializer {
 
 		MinecraftServer server = source.getServer();
 		// Drop and rebuild: a member removed from the file loses the tick immediately.
-		server.getScoreboard().removeTeam(TEAM_NAME);
+		Team existing = server.getScoreboard().getTeam(TEAM_NAME);
+
+		if (existing != null) {
+			server.getScoreboard().removeTeam(existing);
+		}
 
 		for (ServerPlayerEntity online : server.getPlayerManager().getPlayerList()) {
 			if (PrimeMembers.isVerified(online.getUuid())) {
@@ -117,7 +122,8 @@ public class PrimeServer implements DedicatedServerModInitializer {
 
 		MinecraftServer server = source.getServer();
 		source.sendFeedback(() -> Text.literal("Minecraft " + server.getVersion() + " - "
-				+ server.getCurrentPlayerCount() + "/" + server.getMaxPlayers() + " players"), false);
+				+ server.getCurrentPlayerCount() + "/" + server.getPlayerManager().getMaxPlayerCount()
+				+ " players"), false);
 		source.sendFeedback(() -> Text.literal("Verified members: " + PrimeMembers.size()
 				+ (PrimeMembers.discord().configured() ? ", Discord role on" : ", Discord role off")), false);
 		source.sendFeedback(() -> Text.literal("Uptime " + uptime()), false);
